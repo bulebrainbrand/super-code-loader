@@ -50,4 +50,10 @@ code.jsの先頭を見ればわかりますが、Loggerは
 それぞれ第1引数にobj,第2引数に文字列を期待します
 ### assert
 falseの時だけエラーとしてログを表示します。🫖はtestのtつながりです
-## 
+## ロードするブロックの設定
+### deleteLoadCodeBlock
+第1引数にposを取ります。
+Promiseを返します。
+### addLoadCodeBlock
+第1引数にposを取ります。
+Promiseを返します。
