@@ -1,4 +1,5 @@
 
+
 const showLog = {
   error:true,
   warn:true,
@@ -12,8 +13,8 @@ const logJsonIndent = 0
 const codeBlockListPos = [10000,-150,10000]
 
 const useCallback = [
-"onPlayerJump",
-"onload"
+"playerCommand",
+"onload",
 ]
 
 const systemCallback = [
@@ -24,7 +25,7 @@ let callbackFuncData = {}
 for(const name of useCallback){
 callbackFuncData[name] = []
 globalThis[name] = (...arg) => {
-  let willReturn = null
+  let willReturn = undefined
   for(const {pos,fileName,func} of callbackFuncData[name]){
     try{
       const value = func(...arg)
@@ -137,7 +138,9 @@ var Promise = class{
   _runHandlers(){
     if(this.state === "pending")return;
     queueMicrotask(() => {
-      for(const {onFulfilled,onRejected} of this.handlers){
+      const oldHandlers = this.handlers
+      this.handlers = []
+      for(const {onFulfilled,onRejected} of oldHandlers){
         if(this.state === "fulfilled" && onFulfilled){
           onFulfilled(this.value)
           continue;
@@ -146,8 +149,7 @@ var Promise = class{
           onRejected(this.reason)
           continue;
         }
-      }
-      this.handlers = []
+      }     
     })
   }
   then(onFulfilled,onRejected){
@@ -213,12 +215,31 @@ var Promise = class{
 
 var asyncFunction = (geneFunction) => {
 return (...arg) => {
+  let resolve,reject
+  const promise = new Promise((a,b) => {
+    resolve=a
+    reject=b
+    })
   const func = geneFunction(...arg)
   const awaitFunc = ({value,done}) => {
-    if(done)return;
-    Promise.resolve(value).then(value => awaitFunc(func.next(value))).catch(e => awaitFunc(func.throw(e)))
+    if(done){
+      resolve(value)
+      return;
+      };
+    Promise.resolve(value)
+    .then(value => 
+      macrotaskQueue.push(
+        () => {
+          try{
+            awaitFunc(func.next(value))
+            }
+          catch(e){awaitFunc(func.throw(e))}
+          }
+        )
+      )
     }
   awaitFunc(func.next())
+  return promise
   }
 }
 
@@ -265,25 +286,25 @@ var setInterval = (func,interval,...args) => {
 }
 
 tick = () => {
-  while(callStack.length > 0){
-    try{
-      callStack[0]()
-      }catch(e){Logger.error({e},"callStackRunner")}
-      callStack.shift()
+while(callStack.length > 0 || microtaskQueue.length > 0){
+    if(callStack.length){
+      try{
+        callStack[0]()
+        }catch(e){Logger.error({e},"callStackRunner")}
+        callStack.shift()
+      }
+    if(callStack.length === 0){
+      callStack.push(...microtaskQueue)
+      microtaskQueue = []
     }
-  if(callStack.length === 0){
-    callStack.push(...microtaskQueue)
-    microtaskQueue = []
   }
-  if(callStack.length === 0 && runningGenes.length > 0){
-    callStack.push(() => {
-      runningGenes = runningGenes.filter(gene => {
-        try{return !gene.next().done}
+  if(runningGenes.length > 0){
+    runningGenes = runningGenes.filter(gene => {
+      try{return !gene.next().done}
         catch(e){
-          Logger.error({e},"runningGenes")
-          return false
-        }
-      })
+        Logger.error({e},"runningGenes")
+        return false
+      }
     })
   }
   if(callStack.length === 0 && macrotaskQueue.length > 0){
@@ -302,7 +323,7 @@ tick = () => {
     })
     timeoutQueue.shift()
   }
-let willReturn = null
+let willReturn = undefined
 for(const {pos,fileName,func} of callbackFuncData.tick){
   try{
     const value = func()
@@ -400,7 +421,7 @@ const load = (pos) => {
       try{
         (new Function(...importTypeData,"exportData","addEventListener","asyncFunction",text.replaceAll("await","yield")))(...importDataByGlobal,exportData,addEventListener,asyncFunction)
       }catch(e){
-        Logger.error({e,pos},"in running loading")
+        Logger.error({e,pos,fileName},"in running loading")
       }
       Logger.debug({pos,fileName},"loaded")
     })
