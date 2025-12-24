@@ -1,5 +1,6 @@
-# super-code-loader
-async/await処理、promise,import/exportとそれに伴う読み込み順序の決定が使えます
+# clfas system
+```code-loader-for-another-sky```
+async/await、promise,import/exportとそれに伴う読み込み順序の決定、ファイル名、コールスタック、microtaskQueue,macrotaskQueue,定期的に実行されるジェネレーター関数、モダンなLogger、callbackの返り値管理とエラーハンドリング、setTimeout/setIntervalが使えます
 ## global::
 ### global::import
 ```js
