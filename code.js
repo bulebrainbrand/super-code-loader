@@ -1,3 +1,6 @@
+// Copyright (c) 2025 bulebrainbrand
+// This software is released under the MIT License.
+// See LICENSE for details.
 
 
 const showLog = {
