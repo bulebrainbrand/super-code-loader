@@ -1,5 +1,5 @@
-# clfas system
-```code-loader-for-another-sky```
+# super code loader system
+```scl sys```
 async/await、promise,import/exportとそれに伴う読み込み順序の決定、ファイル名、コールスタック、microtaskQueue,macrotaskQueue,定期的に実行されるジェネレーター関数、モダンなLogger、callbackの返り値管理とエラーハンドリング、setTimeout/setIntervalが使えます
 ## global::
 ### global::import
@@ -58,3 +58,9 @@ Promiseを返します。
 ### addLoadCodeBlock
 第1引数にposを取ります。
 Promiseを返します。
+## BlockDataIO
+```js
+//global::import BlockDataIO from BlockDataIO
+BlockDataIO.read(pos)
+BlockDataIO.write(pos,any)
+```
