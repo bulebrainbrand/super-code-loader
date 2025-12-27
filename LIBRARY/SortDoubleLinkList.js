@@ -16,7 +16,7 @@ const SortDoubleLinkList = class{
     this.#pos2 = pos2
     this.#root = root
 
-    this.#insert = asyncFunction(function* (num,data,self){
+    function* insert(num,data,self){
       let firstData = yield BlockDataIO.read(self.#root)
       if(!firstData){
         yield BlockDataIO.write(self.#root,{key:num,data,back:null,next:null})
@@ -60,7 +60,8 @@ const SortDoubleLinkList = class{
         nowData.back = newPos
         yield BlockDataIO.write(nowDataPos,nowData)
         }
-      })
+      }
+    this.#insert = asyncFunction(insert)
 
 
     function* randomPos(pos1,pos2){
@@ -70,7 +71,6 @@ const SortDoubleLinkList = class{
       const randomPosArray = () => [minMaxIntRandom(ax,bx),minMaxIntRandom(ay,by),minMaxIntRandom(a_x,bz)]
       while(true){
         const testPos = randomPosArray()
-api.log(testPos)
         const data = yield BlockDataIO.read(testPos)
         if(!data)return testPos
         }
@@ -78,7 +78,7 @@ api.log(testPos)
 
     this.#randomPos = asyncFunction(randomPos)
 
-    this.#deleteData = asyncFunction(function* (num,self){
+    function* deleteData(num,self){
       let nowData = yield BlockDataIO.read(self.#root)
       let nowDataPos = self.#root
         while(true){
@@ -114,6 +114,8 @@ api.log(testPos)
         }
       yield BlockDataIO.write(nowDataPos,undefined)
       })
+
+    this.#deleteData = asyncFunction(deleteData)
     
     this.#getData = asyncFunction(function* (num,self){
       let nowData = yield BlockDataIO.read(self.#root)
