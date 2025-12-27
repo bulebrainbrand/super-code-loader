@@ -77,7 +77,7 @@ var Logger = {
   }
 }
 
-var BlockDataIO = class{
+const BlockDataIO = class{
   static write(pos,data){
     return new Promise((resolve,reject) => {
       waitLoadBlock(pos,resolve)
@@ -371,7 +371,6 @@ const load = (pos) => {
       for(const {from,importType} of importData){
         const fromStr = from.toString()
         const importFileData = global.filter(({pos,fileName}) => pos === fromStr || fileName === from)
-        
         if(importType[0] === "*"){
           if(/\*\s+as/.test(importType)){
             const importObj = Object.fromEntries(importFileData.map(({name,data}) => [name,data]))
@@ -435,7 +434,7 @@ let loaded = false
 const startLoad = () => {
   for(const name of useCallback)callbackFuncData[name] = [];
   for(const name of systemCallback)callbackFuncData[name] = [];
-  global = []
+  global = [{pos:"BlockDataIO",fileName:"BlockDataIO",name:"BlockDataIO",data:BlockDataIO}]
   loaded = false
   BlockDataIO.read(codeBlockListPos)
     .then(value => {
@@ -450,24 +449,23 @@ const startLoad = () => {
         let inDegree = new Map()
         let nameToId = new Map()
         
-        for(const [pos, info] of data) nameToId.set(info.fileName, pos.toString())
+        for(const [pos,info] of data) nameToId.set(info.fileName, pos.toString())
         
-        for(const [pos, info] of data){
+        for(const [pos,info] of data){
           const id = pos.toString()
           nodes.set(id, {pos, info})
           if(!inDegree.has(id)) inDegree.set(id, 0)
           
-          for(const {from} of (info.importData || [])){
+          for(const {from} of (info.importData ?? [])){
+            if(from === "BlockDataIO")continue;
             const targetId = nameToId.get(from) ?? from.toString()
             if(!graph.has(targetId)) graph.set(targetId, [])
             graph.get(targetId).push(id)
             inDegree.set(id, (inDegree.get(id) || 0) + 1)
           }
         }
-        
         let queue = []
         for(const [id, degree] of inDegree) if(degree === 0) queue.push(id)
-        
         let sortedPosList = []
         while(queue.length > 0){
           const currentId = queue.shift()
@@ -509,6 +507,7 @@ const startLoad = () => {
 }
 
 var global = []
+
 
 var addLoadCodeBlock = (pos) => {
   return BlockDataIO.read(codeBlockListPos).then(value => {
