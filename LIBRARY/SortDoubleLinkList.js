@@ -137,7 +137,7 @@ const SortDoubleLinkList = class{
       while(true){
         const copy = JSON.parse(JSON.stringify(nowData))
         try{
-          callback(copy.data,copy.key)
+          yield callback(copy.data,copy.key)
           }
         catch(e){
           Logger.error({e,data:nowData},"SortDoubleLinkList allDataForEach error")
