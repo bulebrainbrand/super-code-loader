@@ -117,7 +117,7 @@ const SortDoubleLinkList = class{
 
     this.#deleteData = asyncFunction(deleteData)
     
-    this.#getData = asyncFunction(function* (num,self){
+    function* getData(num,self){
       let nowData = yield BlockDataIO.read(self.#root)
       let nowDataPos = self.#root
       while(true){
@@ -128,9 +128,10 @@ const SortDoubleLinkList = class{
         }   
       if(nowData.key !== num)return -1
       return nowData.data       
-      })
+      }
+    this.#getData = asyncFunction(getData)
 
-    this.#allDataForEach = asyncFunction(function* (callback,self){
+    function* allDataForEach(callback,self){
       let nowData = yield BlockDataIO.read(self.#root)
       let nowDataPos = self.#root
       while(true){
@@ -146,7 +147,8 @@ const SortDoubleLinkList = class{
         nowDataPos = nowData.next
         nowData = yield BlockDataIO.read(nowData.next)
         }
-      })
+      }
+    this.#allDataForEach = asyncFunction(allDataForEach)
     this.#editPromise = Promise.resolve("");
     }
 
