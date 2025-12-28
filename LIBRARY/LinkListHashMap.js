@@ -1,4 +1,3 @@
-
 //global::filename LinkListHashMap
 //global::import * from BlockDataIO
 const LinkListHashMap = class{
@@ -11,7 +10,7 @@ constructor(pos1,pos2){
   this.pos1 = pos1
   this.pos2 = pos2
   this.#editPromise = Promise.resolve("");
-  this.#addData = asyncFunction(function* (key,value,self){
+  function* addData(key,value,self){
     const keyPos = self.#keyToPos(key)
     let data = yield BlockDataIO.read(keyPos)
     if(data?.[key] && !data?.[key]?.isDelete){
@@ -38,15 +37,19 @@ constructor(pos1,pos2){
     yield BlockDataIO.write(keyPos,data)
     startData[self.startKey].next = {[key]:self.#keyToPos(key)}
     yield BlockDataIO.write(self.#keyToPos(self.startKey),startData)
-    })
-  this.#deleteData = asyncFunction(function* (key,self){
+    }
+  this.#addData = asyncFunction(addData)
+  
+  function* deleteData(key,self){
     let data = yield BlockDataIO.read(self.#keyToPos(key))
     if(!data?.[key])return;
     if(data[key]?.isDelete)return;
     data[key].isDelete = true
     yield BlockDataIO.write(self.#keyToPos(key),data)
-    })
-  this.#allDataForEach = asyncFunction(function* (callback,startKey,getPos){
+    }
+  this.#deleteData = asyncFunction(deleteData)
+  
+  function* allDataForEach(callback,startKey,getPos){
     const firstData = yield BlockDataIO.read(getPos(startKey))
     let nowData = firstData?.[startKey]
     while(nowData && nowData.next){
@@ -61,7 +64,9 @@ constructor(pos1,pos2){
         break;
         }
       }
-    })
+    }
+  this.#allDataForEach = asyncFunction(allDataForEach)
+  
   this.addData(this.startKey,"start data")
   }
 
