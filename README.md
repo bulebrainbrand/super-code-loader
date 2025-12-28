@@ -64,3 +64,18 @@ Promiseを返します。
 BlockDataIO.read(pos)
 BlockDataIO.write(pos,any)
 ```
+## callback管理
+### useCallback
+callback管理システムに組み込まれるcallback関数の名前の配列です。bloxdにないものでも可。
+### addEventListener
+callbackの呼び出し時に処理される関数を追加できる関数です。
+```js
+/**
+* @param {string} callbackName - useCallbackにあるcallback名
+* @param {function} - callbackの呼び出し時に呼ばれる関数
+* @returns {void}
+*/
+addEventListener(callbackName,function)
+```
+### 返値の管理
+callbackに登録された関数からundefined以外の返り値を受け取ったときは、```[[willReturn]]```要素に保存されます。willReturnがundefinedでないときにwillReturnを変更しようとしたら、失敗します。つまり、先に実行された関数のほうが優先されます。2回目以降の返り値はLogger.warnでの警告ログが表示されます。読み込み順序は決定論的ですが、コードブロックの読み込みの追加順序にも依存するので、複数の返り値を複数の関数で返す予定なら、一つのコードブロックに統合して同じ関数にまとめる方が得策かもしれません
