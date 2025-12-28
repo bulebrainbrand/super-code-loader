@@ -113,7 +113,7 @@ const SortDoubleLinkList = class{
         yield BlockDataIO.write(nextPos,nextData)
         }
       yield BlockDataIO.write(nowDataPos,undefined)
-      })
+      }
 
     this.#deleteData = asyncFunction(deleteData)
     
