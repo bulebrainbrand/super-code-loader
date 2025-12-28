@@ -421,7 +421,7 @@ const load = (pos) => {
           }
         }
       try{
-        (new Function(...importTypeData,"exportData","addEventListener","asyncFunction",text.replaceAll("await","yield")))(...importDataByGlobal,exportData,addEventListener,asyncFunction)
+        (new Function(...importTypeData,"exportData","addEventListener","asyncFunction",text.replaceAll(/(?<=\s)await(?=\s)/g,"yield")))(...importDataByGlobal,exportData,addEventListener,asyncFunction)
       }catch(e){
         Logger.error({e,pos,fileName},"in running loading")
       }
